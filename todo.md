@@ -306,3 +306,4 @@ ajout mode gaming: éteint tout services et export de monde mc + import fichier 
 raccourcis push project git
 branch: manager server
     2: device server
+ntfy priority 5
