@@ -303,3 +303,4 @@ Scripts personnalisés
 Dashboard personnalisable
 
 ajout mode gaming: éteint tout services et export de monde mc + import fichier dans c:/pierrre/impor
+raccourcis push project git
