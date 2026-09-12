@@ -1,0 +1,34 @@
+server:
+  host: "127.0.0.1"
+  port: 8080
+
+manager:
+  name: "PC Manager"
+  refreshInterval: 3000
+
+services:
+
+  system:
+    enabled: true
+    name: "Système"
+    icon: "🖥️"
+
+  processes:
+    enabled: true
+    name: "Processus"
+    icon: "⚙️"
+
+  network:
+    enabled: true
+    name: "Réseau"
+    icon: "🌐"
+
+  storage:
+    enabled: true
+    name: "Stockage"
+    icon: "💾"
+
+  apps:
+    enabled: true
+    name: "Applications"
+    icon: "📦"
