@@ -1,0 +1,31 @@
+import { Router } from "express";
+
+export interface ServiceConfig  {
+  enabled: boolean;
+  name: string;
+  icon: string;
+};
+
+export type ServerConfig = {
+  server: {
+    host: string;
+    port: number;
+  };
+
+  role: {
+    name: "server_manager" | "devices" | "server";
+    host: string;
+    port: number;
+  };
+
+  manager: {
+    name: string;
+    refreshInterval: number;
+  };
+
+  services: Record<string, ServiceConfig>;
+};
+
+export interface Service extends ServiceConfig {
+  api: Router
+}

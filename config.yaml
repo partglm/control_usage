@@ -1,7 +1,11 @@
 server:
   host: "127.0.0.1"
   port: 8080
-  role: "server_manager"
+
+role:
+  name: "server_manager"
+  host: "127.0.0.1"
+  port: 8081
 
 manager:
   name: "PC Manager"
