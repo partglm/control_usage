@@ -8,4 +8,8 @@ const host: string = config.server.host
 
 app.listen(port, host)
 
-//to add here the intervale for role devices
+//to add here the refreshIntervale for roleDevices
+
+//if roleServer:             //envoyés ses infos au roleServerManager (fetch post ) AND get uuid
+//if roleServerManager:      //envoyé ses infos auX roleServer (ajout de ses infos dans infos devices) et crée son uuid
+//if roleDevices:            //envoyé ses infos au roleServerManager

@@ -57,36 +57,20 @@ export default class Devices implements Service {
             this.devices.push(uuid)
         })
 
-        this.service.post('data', (req,res) => {
+        this.service.patch('data', (req,res) => {
             const data: DataDevices = req.body.data
+            const uuid = data.uuid
+
+            this.dataDevices = this.dataDevices.filter(data => data.uuid !== uuid)
             this.dataDevices.push(data)
         })
 
-        this.service.post('dataAll', (req,res) => {
-            const data: DataDevices = req.body.data
-            this.dataDevices.push(data)
+        this.service.get('dataAll', (req,res) => {
+            res.json({data: this.dataDevices})
         })
-
-        this.api.post('data', (req,res) => {
-            const data = this.dataDevices.find(device => device.uuid === req.body.uuid);
-            res.json(data)
-        })
-        //envoyé ses infos auX roleServer (ajout de ses infos dans infos devices)
-
-        this.app.use('/devices', this.api)        
         this.service.listen(this.role_port, this.role_host)
-        return 200
-    }
 
-    startServer (): number {
-        fetch(`${this.role_host}:${this.role_port}/add`) // use son uuid
 
-        setInterval(async () => {
-            const result = await fetch(`${this.role_host}:${this.role_port}/dataAll`) //setinterval
-            const data: DataDevices[] = await result.json()
-
-            this.dataDevices = data
-        }, this.refresh_interval)
 
         this.api.post('data', (req,res) => {
             const data = this.dataDevices.find(device => device.uuid === req.body.uuid);
@@ -94,7 +78,24 @@ export default class Devices implements Service {
         })
 
         this.app.use('/devices', this.api)
-        //envoyés ses infos au roleServerManager (fetch post )
+        return 200
+    }
+
+    startServer (): number {
+        setInterval(async () => {
+            const result = await fetch(`${this.role_host}:${this.role_port}/dataAll`)
+            const json = await result.json()
+            const data: DataDevices[] = json.data
+
+            this.dataDevices = data
+        }, this.refresh_interval/2)
+
+        this.api.post('data', (req,res) => {
+            const data = this.dataDevices.find(device => device.uuid === req.body.uuid);
+            res.json(data)
+        })
+
+        this.app.use('/devices', this.api)
         return 200
     }
 
