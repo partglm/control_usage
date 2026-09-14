@@ -17,8 +17,8 @@ export default class Devices implements Service {
         this.api = this.app._router
         this.config = config.services.devices
         this.enabled = this.config.enabled
-        this.icon = 'toFind'
-        this.name = 'Devices'
+        this.icon = this.config.icon
+        this.name = this.config.name
 
         if (!this.enabled) this.status = 401
 
