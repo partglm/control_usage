@@ -4,12 +4,14 @@ server:
 
 role:
   name: "server_manager"
+  #the name value for role can only be server_manager OR server OR devices
   host: "127.0.0.1"
   port: 8081
 
 manager:
   name: "PC Manager"
   refreshInterval: 3000
+  #all devices need to have the same refresh rate 
 
 services:
   system:
