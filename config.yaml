@@ -7,6 +7,7 @@ role:
   #the name value for role can only be server_manager OR server OR devices
   host: "127.0.0.1"
   port: 8081
+  #the port and host value and is what you set fort role:host and role:port for the server_manager
 
 manager:
   name: "PC Manager"

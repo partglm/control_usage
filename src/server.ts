@@ -7,3 +7,5 @@ const port: number = config.server.port
 const host: string = config.server.host
 
 app.listen(port, host)
+
+//to add here the intervale for role devices

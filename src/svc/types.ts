@@ -7,6 +7,8 @@ export interface ServiceConfig  {
   icon: string;
 };
 
+export type RoleName = "server_manager" | "devices" | "server"
+
 export type ServerConfig = {
   server: {
     host: string;
@@ -14,7 +16,7 @@ export type ServerConfig = {
   };
 
   role: {
-    name: "server_manager" | "devices" | "server";
+    name: RoleName;
     host: string;
     port: number;
   };
