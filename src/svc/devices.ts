@@ -51,12 +51,11 @@ export default class Devices implements Service {
 
     startManagerServer (): number {
         this.service.put('add', (req,res) => {
-            const uuid: UUID = !req.body.uuid ? req.body.uuid:  randomUUID()
+            const uuid: UUID = !req.body.uuid ? req.body.uuid : randomUUID()
             
             res.json({uuid: uuid})
             this.devices.push(uuid)
         })
-
         this.service.patch('data', (req,res) => {
             const data: DataDevices = req.body.data
             const uuid = data.uuid
@@ -64,14 +63,14 @@ export default class Devices implements Service {
             this.dataDevices = this.dataDevices.filter(data => data.uuid !== uuid)
             this.dataDevices.push(data)
         })
-
         this.service.get('dataAll', (req,res) => {
             res.json({data: this.dataDevices})
         })
+
         this.service.listen(this.role_port, this.role_host)
 
 
-
+        //web handler
         this.api.post('data', (req,res) => {
             const data = this.dataDevices.find(device => device.uuid === req.body.uuid);
             res.json(data)
