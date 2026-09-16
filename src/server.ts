@@ -23,14 +23,31 @@ const roleServer = async () => {
     const result = await fetch(`${role_host}:${role_port}/add`)
     const uuid  : UUID = await result.json()
 
-    const indexSvc: indexSvc = indexSvc
+    const index = new indexSvc(app)
 
     setInterval(async () => {
-        const data: DataDevices = 
+        const data: DataDevices = index.refresh()
 
         const result = await fetch(`${role_host}:${role_port}/data`, {
             method: 'PATCH',
-            body: JSON.stringify(data: data)
+            body: JSON.stringify({data: data})
+        })
+
+    }, Math.abs(refresh_rate - 100))
+}
+
+const roleServerManager = async () => {
+    const result = await fetch(`${role_host}:${role_port}/add`)
+    const uuid  : UUID = await result.json()
+
+    const index = new indexSvc(app)
+
+    setInterval(async () => {
+        const data: DataDevices = index.refresh()
+
+        const result = await fetch(`${role_host}:${role_port}/data`, {
+            method: 'PATCH',
+            body: JSON.stringify({data: data})
         })
 
     }, Math.abs(refresh_rate - 100))

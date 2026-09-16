@@ -33,6 +33,8 @@ export interface Service extends ServiceConfig {
   api: Router
 }
 
+export type listServices = {name: string, params: ServiceConfig}[]
+
 export type DataDevices = {
   name: string
   uuid: UUID
