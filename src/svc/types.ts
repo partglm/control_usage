@@ -1,5 +1,5 @@
 import { UUID } from "crypto";
-import { Router } from "express";
+import { Router, type Express } from "express";
 
 export interface ServiceConfig  {
   enabled: boolean;
@@ -30,7 +30,8 @@ export type ServerConfig = {
 };
 
 export interface Service extends ServiceConfig {
-  api: Router
+  api: Router,
+  app: Express
 }
 
 export type listServices = {name: string, params: ServiceConfig}[]
@@ -39,5 +40,10 @@ export type DataDevices = {
   name: string
   uuid: UUID
   time_last_refresh: string
+  information: any
+}
+
+export type DataService = {
+  service: string
   information: any
 }

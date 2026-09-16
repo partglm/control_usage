@@ -24,8 +24,7 @@ export default class indexSvc {
             this.listServices.push({name: element[0], params: element[1]})
         });
         //load Devices
-        if (this.role_name == 'server_manager') new Devices(this.app).startManagerServer()
-        if (this.role_name == 'server') new Devices(this.app).startServer()
+        new Devices(this.app)
         
         //add here the load of Services:    const a = new Services()
         return 200

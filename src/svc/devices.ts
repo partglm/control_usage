@@ -26,7 +26,7 @@ export default class Devices implements Service {
         this.app = app
         this.service = express()
         this.service.use(express.json());
-        this.api = this.app._router
+        this.api = this.app.router
 
         this.config = config.services.devices
         this.enabled = this.config.enabled
