@@ -24,5 +24,5 @@ const roleServerManager = async () => {
 }
 
 //if roleServer:             //envoyés ses infos au roleServerManager (fetch post ) AND get uuid                                DONE
-//if roleServerManager:      //envoyé ses infos auX roleServer (ajout de ses infos dans infos devices) et crée son uuid
-//if roleDevices:            //envoyé ses infos au roleServerManager AND get uuid
+//if roleServerManager:      //envoyé ses infos auX roleServer (ajout de ses infos dans infos devices) et crée son uuid         DONE
+//if roleDevices:            //envoyé ses infos au roleServerManager AND get uuid                                               DONE

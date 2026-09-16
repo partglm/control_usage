@@ -58,7 +58,8 @@ export default class Devices implements Service {
         //Start
         if (!this.enabled) this.status = 401
 
-        if (this.role_name == "devices") return 
+        if (this.role_name == "devices") {
+            this.status = this.startDevices()}
 
         if (this.role_name == "server_manager") {
             this.status = this.startManagerServer() }
@@ -68,6 +69,7 @@ export default class Devices implements Service {
     }
 
     startManagerServer (): number {
+        //services Handler
         this.service.put('add', (req,res) => {
             const uuid: UUID = !req.body.uuid ? req.body.uuid : randomUUID()
             
@@ -87,7 +89,6 @@ export default class Devices implements Service {
 
         this.service.listen(this.role_port, this.role_host)
 
-
         //web handler
         this.api.post('data', (req,res) => {
             const data = this.dataDevices.find(device => device.uuid === req.body.uuid);
@@ -99,6 +100,7 @@ export default class Devices implements Service {
         //info handler for own devices
         setInterval(async () => {
             const data: DataDevices = await indexSvc.refresh(this.uuid)
+
             this.dataDevices = this.dataDevices.filter(data => data.uuid !== this.uuid)
             this.dataDevices.push(data)
         }, Math.abs(this.refresh_interval/2))
@@ -131,6 +133,20 @@ export default class Devices implements Service {
             })
     
         }, Math.abs(this.refresh_interval - 100))
+        return 200
+    }
+
+    startDevices(): number {
+        setInterval(async () => {
+            const data: DataDevices = await indexSvc.refresh(this.uuid)
+     
+            const result = await fetch(`${this.role_host}:${this.role_port}/data`, {
+                method: 'PATCH',
+                body: JSON.stringify({data: data})
+            })
+    
+        }, Math.abs(this.refresh_interval - 100))
+        
         return 200
     }
 
