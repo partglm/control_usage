@@ -1,80 +1,95 @@
 import { DataService, Service, ServiceConfig } from "./types.js";
 import config from "../config.js";
 
-import si from 'systeminformation';
+import si from "systeminformation";
 import { Router, type Express } from "express";
-import { execFile } from 'child_process';
-import { promisify } from 'util';
+import { execFile } from "child_process";
+import { promisify } from "util";
 import { UUID } from "crypto";
 
 const execFileAsync = promisify(execFile);
 
 export class Storage implements Service {
+    cacheRefresh: DataService = {service: 'storage', information: {}, time_last_refresh: 0}
+    status: number = 500;
     app: Express;
     api: Router;
     config: ServiceConfig;
     enabled: boolean;
     name: string;
     icon: string;
-    status: number = 500;
     refresh_interval: number;
     uuid: UUID;
     constructor(app: Express, uuid: UUID) {
-        this.app = app
-        this.api = this.app.router
+        this.app = app;
+        this.api = this.app.router;
 
-        this.config = config.services.devices
-        this.refresh_interval = config.manager.refreshInterval
-        this.enabled = this.config.enabled
-        this.icon = this.config.icon
-        this.name = this.config.name
-        this.uuid = uuid
+        this.config = config.services.storage;
+        this.refresh_interval = config.manager.refreshInterval;
+        this.enabled = this.config.enabled;
+        this.icon = this.config.icon;
+        this.name = this.config.name;
+        this.uuid = uuid;
 
-        if (!this.enabled) return
-        this.status = this.load()
+        if (!this.enabled) return;
+
+        this.status = this.load();
     }
 
     load(): number {
-        this.api.post('data', async (req,res) => {
-            const data: DataService = await this.refresh()
-            
-            res.json(data)
-        })
+        this.api.post("data", async (req, res) => {
+            const data: DataService = await this.refresHandler();
 
-        this.app.use('/storage', this.app)
+            res.json(data);
+        });
 
-        return 200
+        this.app.use("/storage", this.api);
+
+        return 200;
+    }
+
+    async refresHandler(): Promise<DataService> {
+        if ((this.cacheRefresh.time_last_refresh + this.refresh_interval) >= Date.now()) return this.cacheRefresh
+
+        const data: DataService = await this.refresh()
+        this.cacheRefresh = data
+
+        return data
     }
 
     async powershell(command: string): Promise<any> {
-        const { stdout } = await execFileAsync(
-            'powershell.exe',
-            [
-                '-NoProfile',
-                '-NonInteractive',
-                '-ExecutionPolicy',
-                'Bypass',
-                '-Command',
-                command
-            ],
-            {
-                windowsHide: true,
-                maxBuffer: 50 * 1024 * 1024
-            }
-        );
-    
-        if (!stdout.trim()) {
-            return null;
-        }
-    
         try {
-            return JSON.parse(stdout);
+            const { stdout } = await execFileAsync(
+                "powershell.exe",
+                [
+                    "-NoProfile",
+                    "-NonInteractive",
+                    "-ExecutionPolicy",
+                    "Bypass",
+                    "-Command",
+                    command
+                ],
+                {
+                    windowsHide: true,
+                    maxBuffer: 50 * 1024 * 1024
+                }
+            );
+
+            if (!stdout.trim()) {
+                return null;
+            }
+
+            try {
+                return JSON.parse(stdout);
+            } catch {
+                return stdout.trim();
+            }
         } catch {
-            return stdout.trim();
+            return null;
         }
     }
 
-    async refresh(): Promise<DataService> {
+    private async refresh(): Promise<DataService> {
         const [
             disks,
             partitions,
@@ -84,151 +99,169 @@ export class Storage implements Service {
             si.diskLayout(),
             si.blockDevices(),
             si.fsSize(),
-            si.disksIO()
+            si.disksIO().catch(() => null)
+        ]);
+        //cmd
+        const [
+            windowsPhysicalDisks,
+            windowsDisks,
+            windowsPartitions,
+            windowsVolumes,
+            storageReliability,
+            performanceCounters,
+            logicalDiskPerformance,
+            smartInformation
+        ] = await Promise.all([
+            this.powershell(`
+                Get-PhysicalDisk |
+                Select-Object * |
+                ConvertTo-Json -Depth 10 -Compress
+            `),
+
+            this.powershell(`
+                Get-Disk |
+                Select-Object * |
+                ConvertTo-Json -Depth 10 -Compress
+            `),
+
+            this.powershell(`
+                Get-Partition |
+                Select-Object * |
+                ConvertTo-Json -Depth 10 -Compress
+            `),
+
+            this.powershell(`
+                Get-Volume |
+                Select-Object * |
+                ConvertTo-Json -Depth 10 -Compress
+            `),
+
+
+            this.powershell(`
+                Get-PhysicalDisk |
+                Get-StorageReliabilityCounter |
+                Select-Object * |
+                ConvertTo-Json -Depth 10 -Compress
+            `),
+
+            this.powershell(`
+                Get-Counter @(
+                    "\\PhysicalDisk(*)\\Disk Read Bytes/sec",
+                    "\\PhysicalDisk(*)\\Disk Write Bytes/sec",
+                    "\\PhysicalDisk(*)\\Disk Reads/sec",
+                    "\\PhysicalDisk(*)\\Disk Writes/sec",
+                    "\\PhysicalDisk(*)\\Current Disk Queue Length",
+                    "\\PhysicalDisk(*)\\% Disk Time",
+                    "\\PhysicalDisk(*)\\Avg. Disk sec/Read",
+                    "\\PhysicalDisk(*)\\Avg. Disk sec/Write",
+                    "\\PhysicalDisk(*)\\Avg. Disk sec/Transfer"
+                ) |
+                Select-Object -ExpandProperty CounterSamples |
+                Select-Object Path, InstanceName, CookedValue |
+                ConvertTo-Json -Depth 10 -Compress
+            `),
+
+            this.powershell(`
+                Get-Counter @(
+                    "\\LogicalDisk(*)\\Disk Read Bytes/sec",
+                    "\\LogicalDisk(*)\\Disk Write Bytes/sec",
+                    "\\LogicalDisk(*)\\Disk Reads/sec",
+                    "\\LogicalDisk(*)\\Disk Writes/sec",
+                    "\\LogicalDisk(*)\\Current Disk Queue Length",
+                    "\\LogicalDisk(*)\\% Disk Time",
+                    "\\LogicalDisk(*)\\Avg. Disk sec/Read",
+                    "\\LogicalDisk(*)\\Avg. Disk sec/Write",
+                    "\\LogicalDisk(*)\\Avg. Disk sec/Transfer"
+                ) |
+                Select-Object -ExpandProperty CounterSamples |
+                Select-Object Path, InstanceName, CookedValue |
+                ConvertTo-Json -Depth 10 -Compress
+            `),
+
+            this.powershell(`
+                Get-CimInstance `
+                + `-Namespace root/wmi `
+                + `-ClassName MSStorageDriver_FailurePredictStatus |
+                Select-Object * |
+                ConvertTo-Json -Depth 10 -Compress
+            `)
         ]);
 
-        //perf des volumes 
+        const physicalDiskList = Array.isArray(windowsPhysicalDisks)
+            ? windowsPhysicalDisks
+            : windowsPhysicalDisks
+                ? [windowsPhysicalDisks]
+                : [];
 
-        const filesystemPerformance = await Promise.all(
-            filesystems.map(async filesystem => {
-                try {
-                    const performance = await si.diskIO(filesystem.mount);
-
-                    return {
-                        mountPoint: filesystem.mount,
-
-                        readOperations: performance.rIO,
-                        writeOperations: performance.wIO,
-
-                        readBytes: performance.rBytes,
-                        writeBytes: performance.wBytes,
-
-                        totalOperations: performance.tIO,
-                        totalBytes: performance.tBytes,
-
-                        busyTime: performance.bIO,
-                        queueLength: performance.q
-                    };
-                } catch {
-                    return {
-                        mountPoint: filesystem.mount,
-
-                        readOperations: null,
-                        writeOperations: null,
-
-                        readBytes: null,
-                        writeBytes: null,
-
-                        totalOperations: null,
-                        totalBytes: null,
-
-                        busyTime: null,
-                        queueLength: null
-                    };
-                }
-            })
-        );
-        //disk physique
-
-        const windowsPhysicalDisks = await this.powershell(`
-            Get-PhysicalDisk |
-            Select-Object * |
-            ConvertTo-Json -Depth 10 -Compress
-        `);
-        //partition 
-
-        const windowsDisks = await this.powershell(`
-            Get-Disk |
-            Select-Object * |
-            ConvertTo-Json -Depth 10 -Compress
-        `);
+        const reliabilityList = Array.isArray(storageReliability)
+            ? storageReliability
+            : storageReliability
+                ? [storageReliability]
+                : [];
 
 
-        const windowsPartitions = await this.powershell(`
-            Get-Partition |
-            Select-Object * |
-            ConvertTo-Json -Depth 10 -Compress
-        `);
-        //volumes
-
-        const windowsVolumes = await this.powershell(`
-            Get-Volume |
-            Select-Object * |
-            ConvertTo-Json -Depth 10 -Compress
-        `);
-        //fiabilié des disk
-
-        const storageReliability = await this.powershell(`
-            Get-PhysicalDisk |
-            Get-StorageReliabilityCounter |
-            Select-Object * |
-            ConvertTo-Json -Depth 10 -Compress
-        `);
-        //compteur de perf
-
-        const performanceCounters = await this.powershell(`
-            Get-Counter '
-                \\PhysicalDisk(*)\\Disk Read Bytes/sec,
-                \\PhysicalDisk(*)\\Disk Write Bytes/sec,
-                \\PhysicalDisk(*)\\Disk Reads/sec,
-                \\PhysicalDisk(*)\\Disk Writes/sec,
-                \\PhysicalDisk(*)\\Current Disk Queue Length,
-                \\PhysicalDisk(*)\\% Disk Time,
-                \\PhysicalDisk(*)\\Avg. Disk sec/Read,
-                \\PhysicalDisk(*)\\Avg. Disk sec/Write,
-                \\PhysicalDisk(*)\\Avg. Disk sec/Transfer
-            ' |
-            Select-Object -ExpandProperty CounterSamples |
-            Select-Object Path, InstanceName, CookedValue |
-            ConvertTo-Json -Depth 10 -Compress
-        `);
-        //info smart
-
-        const smartInformation = await this.powershell(`
-            Get-CimInstance -Namespace root/wmi -ClassName MSStorageDriver_FailurePredictStatus |
-            Select-Object * |
-            ConvertTo-Json -Depth 10 -Compress
-        `);
-
-        //obj final
         const information = {
+            disks: disks.map(disk => {
+                const windowsDisk = physicalDiskList.find(
+                    (windowsDisk: any) =>
+                        windowsDisk.SerialNumber &&
+                        disk.serialNum &&
+                        windowsDisk.SerialNumber === disk.serialNum
+                );
 
-            disks: disks.map(disk => ({
-                device: disk.device,
-                name: disk.name,
+                const reliability = reliabilityList.find(
+                    (item: any) =>
+                        item.SerialNumber &&
+                        disk.serialNum &&
+                        item.SerialNumber === disk.serialNum
+                );
 
-                type: disk.type,
-                vendor: disk.vendor,
+                const diskNumber =
+                    windowsDisk?.DeviceId ??
+                    windowsDisk?.Number ??
+                    null;
 
-                size: disk.size,
-                firmwareRevision: disk.firmwareRevision,
-
-                serialNumber: disk.serialNum,
-                interfaceType: disk.interfaceType,
-
-                temperature: disk.temperature,
-                smartStatus: disk.smartStatus,
-
-                bytesPerSector: disk.bytesPerSector,
-                totalCylinders: disk.totalCylinders,
-
-                windowsInformation:
-                    Array.isArray(windowsPhysicalDisks)
-                        ? windowsPhysicalDisks.find(
-                            (windowsDisk: any) =>
-                                windowsDisk.SerialNumber === disk.serialNum
+                const performance =
+                    Array.isArray(performanceCounters)
+                        ? performanceCounters.filter(
+                            (counter: any) =>
+                                diskNumber !== null &&
+                                (
+                                    counter.InstanceName ===
+                                    `${diskNumber}`
+                                    ||
+                                    counter.InstanceName?.includes(
+                                        `${diskNumber}`
+                                    )
+                                )
                         )
-                        : windowsPhysicalDisks,
+                        : [];
 
-                reliability:
-                    Array.isArray(storageReliability)
-                        ? storageReliability.find(
-                            (reliability: any) =>
-                                reliability.SerialNumber === disk.serialNum
-                        )
-                        : storageReliability
+                return {
+                    device: disk.device,
+                    name: disk.name,
 
-            })),
+                    type: disk.type,
+                    vendor: disk.vendor,
+
+                    size: disk.size,
+                    firmwareRevision: disk.firmwareRevision,
+
+                    serialNumber: disk.serialNum,
+                    interfaceType: disk.interfaceType,
+
+                    temperature: disk.temperature,
+                    smartStatus: disk.smartStatus,
+
+                    bytesPerSector: disk.bytesPerSector,
+                    totalCylinders: disk.totalCylinders,
+
+                    windowsInformation: windowsDisk,
+                    reliability,
+
+                    performance
+                };
+            }),
 
             partitions: partitions.map(partition => {
                 const windowsPartition =
@@ -241,22 +274,19 @@ export class Storage implements Service {
                                     .toLowerCase() ===
                                 partition.mount.toLowerCase()
                         )
-                        : null;
+                        : windowsPartitions;
                 return {
                     device: partition.name,
                     label: partition.label,
 
                     type: partition.type,
-                    filesystem: partition.fstype,
+                    filesystem: partition.fsType,
 
                     mountPoint: partition.mount,
                     size: partition.size,
 
                     physical: partition.physical,
                     uuid: partition.uuid,
-
-                    logicalBlockSize: partition.logicalBlockSize,
-                    physicalBlockSize: partition.physicalBlockSize,
 
                     windowsInformation: windowsPartition
                 };
@@ -272,16 +302,19 @@ export class Storage implements Service {
                                     .toLowerCase() ===
                                 filesystem.mount.toLowerCase()
                         )
-                        : null;
+                        : windowsVolumes;
 
                 const performance =
-                    filesystemPerformance.find(
-                        performance =>
-                            performance.mountPoint === filesystem.mount
-                    );
-
+                    Array.isArray(logicalDiskPerformance)
+                        ? logicalDiskPerformance.filter(
+                            (counter: any) =>
+                                counter.InstanceName?.toLowerCase() ===
+                                filesystem.mount
+                                    .replace(":", "")
+                                    .toLowerCase()
+                        )
+                        : [];
                 return {
-
                     mountPoint: filesystem.mount,
                     filesystem: filesystem.fs,
 
@@ -297,20 +330,11 @@ export class Storage implements Service {
                     performance
                 };
             }),
-
             performance: {
-                readOperations: globalDiskIO.rIO,
-                writeOperations: globalDiskIO.wIO,
-
-                readBytes: globalDiskIO.rBytes,
-                writeBytes: globalDiskIO.wBytes,
-
-                totalOperations: globalDiskIO.tIO,
-                totalBytes: globalDiskIO.tBytes,
-
-                busyTime: globalDiskIO.bIO,
-                queueLength: globalDiskIO.q,
-
+                readOperations: globalDiskIO?.rIO ?? null,
+                writeOperations: globalDiskIO?.wIO ?? null,
+            
+                totalOperations: globalDiskIO?.tIO ?? null,
                 windowsCounters: performanceCounters
             },
 
@@ -329,17 +353,15 @@ export class Storage implements Service {
                 storageReliability,
                 performanceCounters,
 
+                logicalDiskPerformance,
                 smartInformation
             }
         };
 
-
         const data: DataService = {
-
-            service: 'storage',
-
-            information
-
+            service: "storage",
+            information,
+            time_last_refresh: Date.now()
         };
 
 

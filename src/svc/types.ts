@@ -45,5 +45,6 @@ export type DataDevices = {
 
 export type DataService = {
   service: string
+  time_last_refresh: number
   information: any
 }
