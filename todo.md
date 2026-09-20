@@ -1,4 +1,4 @@
-🖥️ 1. Gestion du matériel
+🖥️ 1. Gestion du matériel SYSTEM
 
 Détection du CPU, GPU, RAM, carte mère
 Température des composants
@@ -12,7 +12,7 @@ Gestion des pilotes
 Détection des périphériques défaillants
 Numéros de série et informations matérielles
 
-📁 2. Gestion des fichiers
+📁 2. Gestion des fichiers   FILE
 
 Explorateur de fichiers
 Création / suppression / déplacement de fichiers
@@ -27,7 +27,7 @@ Corbeille
 Détection des fichiers volumineux
 Nettoyage des fichiers temporaires
 
-⚙️ 3. Gestion du système
+⚙️ 3. Gestion du système  GESTION
 
 Redémarrage / arrêt / veille
 Déconnexion de session
@@ -43,7 +43,7 @@ Gestion des tâches planifiées
 Gestion des mises à jour
 Gestion des fonctionnalités Windows
 
-📊 4. Surveillance en temps réel
+📊 4. Surveillance en temps réel   USAGE
 
 Un tableau de bord pourrait afficher :
 CPU : %
@@ -61,7 +61,7 @@ Charge système
 Batterie
     Avec des graphiques historiques pour voir l'évolution.
 
-🌐 5. Gestion réseau
+🌐 5. Gestion réseau   NET
 
 Adresse IP
 Adresse MAC
@@ -86,7 +86,7 @@ VPN
 Tailscale
 Diagnostic réseau
 
-🔐 6. Sécurité
+🔐 6. Sécurité   SECURITY
 
 État de Windows Defender
 État du pare-feu
@@ -105,7 +105,7 @@ Surveillance des changements système
 
 ⚠️ Certaines fonctions nécessitent évidemment des privilèges administrateur.
 
-👤 7. Gestion des utilisateurs
+👤 7. Gestion des utilisateurs   USERS
 
 Créer un utilisateur
 Supprimer un utilisateur
@@ -117,8 +117,8 @@ Verrouiller un compte
 Déconnecter un utilisateur
 Voir les sessions ouvertes
 Historique des connexions
-
-📦 8. Gestion des logiciels
+ 
+📦 8. Gestion des logiciels     APPS
 Liste des programmes installés
 
 Installation
@@ -132,7 +132,7 @@ Gestion des applications Microsoft Store
 Vérification des versions
 Lancement / fermeture forcée d'une application
 
-🚀 9. Performance
+🚀 9. Performance   PERF
 
 Gestion des processus
 Priorité des processus
@@ -146,7 +146,7 @@ Surveillance des performances
 Détection des ralentissements
 Benchmark CPU/GPU/disque
 
-📝 10. Journaux et diagnostic
+📝 10. Journaux et diagnostic   LOG
 
 Event Viewer
 Journaux système
@@ -161,7 +161,7 @@ Exportation des logs
 Recherche dans les logs
 Alertes automatiques
 
-💾 11. Sauvegarde et récupération
+💾 11. Sauvegarde et récupération     SAVE
 
 Sauvegarde de fichiers
 Sauvegarde automatique
@@ -174,7 +174,7 @@ Sauvegarde vers un NAS
 Sauvegarde vers un autre PC
 Synchronisation cloud
 
-🔄 12. Automatisation
+🔄 12. Automatisation   AUTOMATE
 
 C'est une partie particulièrement intéressante pour un tel logiciel :
 
@@ -198,7 +198,7 @@ ou :
 
 Si le PC démarre → envoyer une notification au téléphone.
 
-📱 13. Gestion à distance
+📱 13. Gestion à distance  HOME: page
 
 Si le logiciel possède un serveur local :
 
@@ -217,7 +217,7 @@ Envoyer des notifications
 Wake-on-LAN
 Gestion de plusieurs ordinateurs
 
-🔔 14. Notifications
+🔔 14. Notifications    NOTIF
 
 Par exemple :
 
@@ -237,7 +237,11 @@ Mise à jour disponible
 Les notifications peuvent être envoyées par :
 ntfy
 
-🖥️ 15. Interface
+
+
+
+
+    interface ex: 
 
 Un bon logiciel pourrait avoir un dashboard central :
 
@@ -255,7 +259,7 @@ Un bon logiciel pourrait avoir un dashboard central :
 │ 📦 Logiciels   👤 Utilisateurs 💾 Backup     │
 └─────────────────────────────────────────────┘
 
-🏢 16. Gestion de plusieurs PC
+🏢 16. Gestion de plusieurs PC DEVICES
 
 Pour aller encore plus loin, le logiciel peut gérer plusieurs ordinateurs depuis une seule interface :
 
