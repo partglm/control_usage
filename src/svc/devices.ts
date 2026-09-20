@@ -150,7 +150,7 @@ export default class Devices implements Service {
         return 200
     }
 
-    getDevices (): UUID[] {
-        return this.devices
-    }
+    //getDevices (): UUID[] {
+    //    return this.devices
+    //}
 }

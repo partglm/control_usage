@@ -5,18 +5,23 @@ import { UUID } from 'crypto';
 import { DataDevices, listServices, RoleName } from './types.js';
 import config from '../config.js';
 import Devices from './devices.js';
+import Storage from './storage.js';
 
 export default class indexSvc {
     app: Express
     listServices: listServices
     role_name: RoleName
     status: number
+    static Storage: Storage;
     static time_last_refresh: string
+
     constructor(app: Express) {
         this.app = app
         this.listServices = []
         this.role_name = config.role.name
         this.status = this.load()
+
+        indexSvc.Storage = new Storage(app)
     }
 
     load (): number {
@@ -33,13 +38,6 @@ export default class indexSvc {
     static async refresh (uuid: UUID): Promise<DataDevices> {
         const name: string = (await si.osInfo()).hostname
 
-        const data: DataDevices = {
-            name: name,
-            uuid: uuid,
-            time_last_refresh: this.time_last_refresh,
-            information: {}
-        }
-
         this.time_last_refresh = new Date().toLocaleString('fr-FR', {
             weekday: 'long',
             year: 'numeric',
@@ -50,8 +48,15 @@ export default class indexSvc {
             second: '2-digit'
         });
 
+        const data: DataDevices = {
+            name: name,
+            uuid: uuid,
+            time_last_refresh: this.time_last_refresh,
+            information: {}
+        }
+
         //ajouter a information ici le contenue du service sous format: name: {data}
-        
+        data.information['storage'] = this.Storage.refresHandler()
         
         return data
     }
