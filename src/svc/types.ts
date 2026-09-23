@@ -43,6 +43,13 @@ export type DataDevices = {
   information: any
 }
 
+export type ListDevices = {
+  uuid: UUID,
+  name: string,
+  status: boolean
+  time_last_refresh: number
+}[]
+
 export type DataService = {
   service: string
   time_last_refresh: number

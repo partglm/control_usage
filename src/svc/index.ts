@@ -14,24 +14,24 @@ export default class indexSvc {
     status: number
     static Storage: Storage;
     static time_last_refresh: string
+    static Devices: Devices;
 
     constructor(app: Express) {
         this.app = app
         this.listServices = []
         this.role_name = config.role.name
         this.status = this.load()
-
-        indexSvc.Storage = new Storage(app)
     }
 
     load (): number {
         Object.entries(config.services).forEach(element => {
             this.listServices.push({name: element[0], params: element[1]})
         });
-        //load Devices
-        new Devices(this.app)
         
-        //add here the load of Services:    const a = new Services()
+        //add here the load of Services: indexSvc.a = new Services()
+        indexSvc.Devices = new Devices(this.app)
+        indexSvc.Storage = new Storage(this.app)
+        
         return 200
     }
 
@@ -50,7 +50,7 @@ export default class indexSvc {
 
         const data: DataDevices = {
             name: name,
-            uuid: uuid,
+            uuid: this.Devices.uuid,
             time_last_refresh: this.time_last_refresh,
             information: {}
         }

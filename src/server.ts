@@ -13,7 +13,9 @@ app.listen(port, host)
 
 //if roleServer:             //envoyés ses infos au roleServerManager (fetch post ) AND get uuid                                DONE
 //if roleServerManager:      //envoyé ses infos auX roleServer (ajout de ses infos dans infos devices) et crée son uuid         DONE
-//if roleDevices:            //envoyé ses infos au roleServerManager AND get uuid                                               DONE                                            
+//if roleDevices:            //envoyé ses infos au roleServerManager AND get uuid                                               DONE
+//fallback if Devices is not enabled: startManagerServer
+
 
 //import { Storage } from './svc/storage.js';
 //import { randomUUID } from 'crypto';
