@@ -10,6 +10,8 @@ export interface ServiceConfig  {
 export type RoleName = "server_manager" | "devices" | "server"
 
 export type ServerConfig = {
+  dirname: string;
+  
   server: {
     host: string;
     port: number;

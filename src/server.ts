@@ -7,7 +7,7 @@ const app = express()
 const port: number = config.server.port
 const host: string = config.server.host
 
-new indexSvc(app)
+//new indexSvc(app)
 
 app.listen(port, host)
 
@@ -17,10 +17,15 @@ app.listen(port, host)
 //fallback if Devices is not enabled: startManagerServer
 
 
-//import { Storage } from './svc/storage.js';
-//import { randomUUID } from 'crypto';
-//const storage = new Storage(app, randomUUID());
-//const data = await storage.refresHandler();
-//console.log(data)
-//const data1 = await storage.refresHandler();
-//console.log(data1)
+
+import usage  from './svc/usage.js';
+import si from 'systeminformation';
+
+const disk = await si.disksIO();
+console.log(disk);
+console.log(disk);
+console.log(disk);
+
+const storage = new usage(app);
+const data = await storage.refresHandler();
+console.log(data)

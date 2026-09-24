@@ -5,14 +5,14 @@ import { UUID } from 'crypto';
 import { DataDevices, listServices, RoleName } from './types.js';
 import config from '../config.js';
 import Devices from './devices.js';
-import Storage from './storage.js';
+import Usage from './usage.js';
 
 export default class indexSvc {
     app: Express
     listServices: listServices
     role_name: RoleName
     status: number
-    static Storage: Storage;
+    static Usage: Usage;
     static time_last_refresh: string
     static Devices: Devices;
 
@@ -30,7 +30,7 @@ export default class indexSvc {
         
         //add here the load of Services: indexSvc.a = new Services()
         indexSvc.Devices = new Devices(this.app)
-        indexSvc.Storage = new Storage(this.app)
+        indexSvc.Usage = new Usage(this.app)
         
         return 200
     }
@@ -56,7 +56,7 @@ export default class indexSvc {
         }
 
         //ajouter a information ici le contenue du service sous format: name: {data}
-        data.information['storage'] = this.Storage.refresHandler()
+        data.information['usage'] = this.Usage.refresHandler()
         
         return data
     }

@@ -114,7 +114,6 @@ Propriétaire des données de consommation instantanées.
 CPU
  Utilisation CPU %
  Fréquence actuelle
- Charge par cœur
 RAM
  RAM utilisée
  RAM disponible
@@ -553,5 +552,7 @@ raccourcis push project git
 branch: manager server
     2: device server
 ntfy priority 5
+spec pcs : multiple (ex 2 gpu )
+fan speeds
 
 god, sousT

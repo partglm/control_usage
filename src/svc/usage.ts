@@ -56,11 +56,38 @@ export default class Storage implements Service {
 
     private async refresh(): Promise<DataService> {
         //Data see todo.md
+        const ram = await si.mem()
+        const gpu = (await si.graphics()).controllers[0]
+        const disk = (await si.disksIO())
+
+        const information = {
+            cpu: {
+                usage: (await si.currentLoad()).cpus[0].load , 
+                freq: (await si.cpuCurrentSpeed()).avg
+            },
+            ram: {
+                used: ram.used,
+                dispo: ram.available,
+                total: ram.total,
+                usage: Math.round((ram.used / ram.total) * 100)
+            },
+            gpu: {
+                usage: gpu.utilizationGpu,
+                vram_used: gpu.memoryUsed,
+                vram_dispo: gpu.memoryFree,
+                vram_total: gpu.memoryTotal
+            },
+            disk: {
+                read: disk.rWaitPercent,
+                write: disk.wWaitPercent,
+                usage: this.powershell("(Get-Counter '\PhysicalDisk(_Total)\% Disk Time').CounterSamples.CookedValue")
+            }
+        }
 
 
         const data: DataService = {
             service: "storage",
-            information: {},
+            information,
             time_last_refresh: Date.now()
         };
 
