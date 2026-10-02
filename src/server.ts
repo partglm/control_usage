@@ -9,7 +9,7 @@ const host: string = config.server.host
 
 //new indexSvc(app)
 
-app.listen(port, host)
+//app.listen(port, host)
 
 //if roleServer:             //envoyés ses infos au roleServerManager (fetch post ) AND get uuid                                DONE
 //if roleServerManager:      //envoyé ses infos auX roleServer (ajout de ses infos dans infos devices) et crée son uuid         DONE
@@ -19,13 +19,7 @@ app.listen(port, host)
 
 
 import usage  from './svc/usage.js';
-import si from 'systeminformation';
-
-const disk = await si.disksIO();
-console.log(disk);
-console.log(disk);
-console.log(disk);
 
 const storage = new usage(app);
 const data = await storage.refresHandler();
-console.log(data)
+console.log(JSON.stringify(data, null, 2))

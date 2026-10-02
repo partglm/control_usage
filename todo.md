@@ -131,9 +131,6 @@ Disque
 Réseau
  Débit entrant
  Débit sortant
-Système
- Charge système
- Nombre de processus actifs
 Historique
  Historique CPU
  Historique RAM

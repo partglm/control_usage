@@ -11,6 +11,6 @@ const configPath = path.join(__dirname, '../config.yaml')
 const configFile = fs.readFileSync(configPath, 'utf-8')
 const config: ServerConfig = yaml.parse(configFile)
 
-config.dirname = __dirname
+config.dirname = path.join(__dirname, '../')
 
 export default config

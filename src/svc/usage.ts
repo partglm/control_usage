@@ -5,6 +5,8 @@ import si from "systeminformation";
 import { Router, type Express } from "express";
 import { execFile } from "child_process";
 import { promisify } from "util";
+import fs, { cpSync } from "fs";
+import { info } from "console";
 
 const execFileAsync = promisify(execFile);
 
@@ -58,11 +60,20 @@ export default class Storage implements Service {
         //Data see todo.md
         const ram = await si.mem()
         const gpu = (await si.graphics()).controllers[0]
-        const disk = (await si.disksIO())
+        const disk = (await this.powershell(`
+            Get-CimInstance Win32_PerfFormattedData_PerfDisk_PhysicalDisk |
+            Where-Object Name -eq "_Total" |
+            Select-Object PercentDiskTime, DiskReadBytesPerSec, DiskWriteBytesPerSec |
+            ConvertTo-Json -Compress`))
+        const net = await this.getNetworkUsage()
+        const file = fs.readFileSync(config.dirname + '/data/usage.jsonl', 'utf8').trim().split("\n");
+
+        const usageLines = file.filter(line => line.length > 0);
+        const history = usageLines.map(line => JSON.parse(line))
 
         const information = {
             cpu: {
-                usage: (await si.currentLoad()).cpus[0].load , 
+                usage: (await si.currentLoad()).cpus[0].load, 
                 freq: (await si.cpuCurrentSpeed()).avg
             },
             ram: {
@@ -72,27 +83,60 @@ export default class Storage implements Service {
                 usage: Math.round((ram.used / ram.total) * 100)
             },
             gpu: {
-                usage: gpu.utilizationGpu,
+                usage: gpu.utilizationGpu ?? 0,
                 vram_used: gpu.memoryUsed,
                 vram_dispo: gpu.memoryFree,
                 vram_total: gpu.memoryTotal
             },
             disk: {
-                read: disk.rWaitPercent,
-                write: disk.wWaitPercent,
-                usage: this.powershell("(Get-Counter '\PhysicalDisk(_Total)\% Disk Time').CounterSamples.CookedValue")
-            }
+                usage: disk.PercentDiskTime,
+                read: disk.DiskReadBytesPerSec,
+                write: disk.DiskWriteBytesPerSec,
+
+            },
+            network: {
+                in: net.received,
+                out: net.sent
+            },
+            history: [] as any[]
         }
 
-
-        const data: DataService = {
-            service: "storage",
+        const data = {
             information,
             time_last_refresh: Date.now()
         };
 
+        fs.appendFileSync(config.dirname + '/data/usage.jsonl', JSON.stringify(data) + '\n')
 
-        return data;
+        information.history = history ?? []
+
+        return {information: data.information,
+                time_last_refresh: data.time_last_refresh,
+                service: 'Usage'};
+    }
+
+    private async getNetworkUsage(): Promise<{ received: number; sent: number; }> {
+        const a = await this.powershell(`
+            Get-NetAdapterStatistics |
+            Select-Object Name, ReceivedBytes, SentBytes |
+            ConvertTo-Json -Compress
+        `);
+
+        await new Promise(r => setTimeout(r, 1000));
+
+        const b = await this.powershell(`
+            Get-NetAdapterStatistics |
+            Select-Object Name, ReceivedBytes, SentBytes |
+            ConvertTo-Json -Compress
+        `);
+
+        const r = b.find((n: any) => n.Name === "Wi-Fi").ReceivedBytes
+                - a.find((n: any) => n.Name === "Wi-Fi").ReceivedBytes;
+
+        const s = b.find((n: any) => n.Name === "Wi-Fi").SentBytes
+                - a.find((n: any) => n.Name === "Wi-Fi").SentBytes;
+
+        return { received: r, sent: s };
     }
 
     async powershell(command: string): Promise<any> {
