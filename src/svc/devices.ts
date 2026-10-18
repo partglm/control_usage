@@ -14,7 +14,7 @@ export default class Devices implements Service {
     name: string;
     icon: string;
     status: number = 500;
-    devices: ListDevices;
+    static devices: ListDevices;
     dataDevices: DataDevices[];
     role_host: string;
     role_port: number;
@@ -38,7 +38,7 @@ export default class Devices implements Service {
         this.role_name = config.role.name
         this.refresh_interval = config.manager.refreshInterval
 
-        this.devices = []
+        Devices.devices = []
         this.dataDevices = []
 
         if (!this.enabled) this.status = 401
@@ -80,13 +80,13 @@ export default class Devices implements Service {
         //services Handler
         this.service.put('add', (req,res) => {
             const name: string = req.body.name
-            const uuid: UUID = this.devices.find(d => d.name === name)?.uuid ?? randomUUID();
+            const uuid: UUID = Devices.devices.find(d => d.name === name)?.uuid ?? randomUUID();
             
             res.json({uuid: uuid})
 
-            const exists = this.devices.some(d => d.name === name);
+            const exists = Devices.devices.some(d => d.name === name);
             if (exists) return
-            this.devices.push({uuid: uuid, name: name, status: true, time_last_refresh: 0})
+            Devices.devices.push({uuid: uuid, name: name, status: true, time_last_refresh: 0})
         })
         this.service.patch('data', (req,res) => {
             const data: DataDevices = req.body.data
@@ -121,10 +121,10 @@ export default class Devices implements Service {
             this.dataDevices.push(data)
         
             //check status devices
-            this.devices.forEach(device => {
+            Devices.devices.forEach(device => {
                 if (device.time_last_refresh !== 0 &&
                     (device.time_last_refresh + (this.refresh_interval * 2.5)) > Date.now()) {
-                    this.devices.find(d => d.uuid === device.uuid)!.status = false;
+                    Devices.devices.find(d => d.uuid === device.uuid)!.status = false;
                 }
             })
         

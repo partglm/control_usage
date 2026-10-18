@@ -11,13 +11,13 @@
     <script>
         const listDevices = document.getElementById('listDevices')
         async function servicesData () {
-            const result = await fetch('/data', {
+            const result = await fetch('/devices', {
                 method: 'POST'
             })
             const data = result.json()
             
             data.forEach(device => {
-                listDevices.innerHTML += "" 
+                console.log(device)
             });
         }
         devices()

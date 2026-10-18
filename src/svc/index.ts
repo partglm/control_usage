@@ -6,7 +6,7 @@ import { DataDevices, listServices, RoleName } from './types.js';
 import config from '../config.js';
 import Devices from './devices.js';
 import Usage from './usage.js';
-
+indexSvc.refresh()
 export default class indexSvc {
     app: Express
     listServices: listServices

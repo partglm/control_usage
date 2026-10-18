@@ -1,7 +1,8 @@
 import type { Express, Router } from 'express'
-import { DataService, Service, ServiceConfig } from './types.js';
+import { DataService, ListDevices, Service, ServiceConfig } from './types.js';
 import config from '../config.js';
 import indexSvc from './index.js';
+import Devices from './devices.js';
 
 export default class Home implements Service {
     app: Express
@@ -32,6 +33,12 @@ export default class Home implements Service {
             const data: DataService[] = await this.refresh()
 
             res.json(data)
+        })
+
+        this.api.post('devices', (req,res) => {
+            const data: ListDevices = Devices.devices
+
+            res.json({data: data})
         })
 
 
