@@ -11,6 +11,9 @@ const configPath = path.join(__dirname, '../config.yaml')
 const configFile = fs.readFileSync(configPath, 'utf-8')
 const config: ServerConfig = yaml.parse(configFile)
 
+const refreshArg = process.argv[2]
+if (refreshArg=='--no-refresh') config.manager.refreshInterval = 294967296
+
 config.dirname = path.join(__dirname, '../')
 
 export default config

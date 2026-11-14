@@ -6,7 +6,8 @@ import { DataDevices, listServices, RoleName } from './types.js';
 import config from '../config.js';
 import Devices from './devices.js';
 import Usage from './usage.js';
-indexSvc.refresh()
+import Home from './home.js';
+
 export default class indexSvc {
     app: Express
     listServices: listServices
@@ -15,6 +16,7 @@ export default class indexSvc {
     static Usage: Usage;
     static time_last_refresh: string
     static Devices: Devices;
+    static Home: Home;
 
     constructor(app: Express) {
         this.app = app
@@ -31,6 +33,7 @@ export default class indexSvc {
         //add here the load of Services: indexSvc.a = new Services()
         indexSvc.Devices = new Devices(this.app)
         indexSvc.Usage = new Usage(this.app)
+        indexSvc.Home = new Home(this.app)
         
         return 200
     }

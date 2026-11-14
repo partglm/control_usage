@@ -7,19 +7,21 @@ const app = express()
 const port: number = config.server.port
 const host: string = config.server.host
 
-//new indexSvc(app)
+app.use(express.json())
+new indexSvc(app)
 
-//app.listen(port, host)
+app.listen(port, host)
+console.log(`server started: http://${host}:${port}`)
+
 
 //if roleServer:             //envoyés ses infos au roleServerManager (fetch post ) AND get uuid                                DONE
 //if roleServerManager:      //envoyé ses infos auX roleServer (ajout de ses infos dans infos devices) et crée son uuid         DONE
 //if roleDevices:            //envoyé ses infos au roleServerManager AND get uuid                                               DONE
-//fallback if Devices is not enabled: startManagerServer
+//fallback if Devices is not enabled: startManagerServer or not reachable 
 
 
-
-import usage  from './svc/usage.js';
-
-const storage = new usage(app);
-const data = await storage.refresHandler();
-console.log(JSON.stringify(data, null, 2))
+//import usage  from './svc/usage.js';
+//
+//const storage = new usage(app);
+//const data = await storage.refresHandler();
+//console.log(JSON.stringify(data, null, 2))

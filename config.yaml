@@ -15,27 +15,22 @@ manager:
   #all devices need to have the same refresh rate 
 
 services:
-  system:
+  devices:
     enabled: true
-    name: "Système"
-    icon: "🖥️"
+    name: "Devices"
 
-  processes:
+  home:
     enabled: true
     name: "Processus"
-    icon: "⚙️"
 
   network:
     enabled: true
     name: "Réseau"
-    icon: "🌐"
 
   storage:
     enabled: true
     name: "Stockage"
-    icon: "💾"
 
   apps:
     enabled: true
     name: "Applications"
-    icon: "📦"

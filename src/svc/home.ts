@@ -7,7 +7,6 @@ import Devices from './devices.js';
 export default class Home implements Service {
     app: Express
     enabled: boolean;
-    icon: string;
     name: string;
     api: Router
     config: ServiceConfig
@@ -18,7 +17,6 @@ export default class Home implements Service {
 
         this.config = config.services.home
         this.enabled = this.config.enabled
-        this.icon = this.config.icon
         this.name = this.config.name
 
         this.status = this.load()
@@ -26,7 +24,7 @@ export default class Home implements Service {
 
     load (): number {
         this.api.get('/', (req,res) => {
-            res.sendFile(config.dirname + "/public/home" + "/home.html")
+            res.sendFile(config.dirname + "/src/public/home" + "/home.html")
         })
 
         this.api.post('data', async (req,res) =>{
@@ -41,8 +39,13 @@ export default class Home implements Service {
             res.json({data: data})
         })
 
-
         this.app.use('/home', this.api)
+        this.app.get('/', (req,res)=>{
+            res.send(`<script>
+                window.location.href = "/home";
+                </script>`)
+        })
+        
         return 200
     }
 

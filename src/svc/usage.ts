@@ -18,7 +18,6 @@ export default class Storage implements Service {
     config: ServiceConfig;
     enabled: boolean;
     name: string;
-    icon: string;
     refresh_interval: number;
     constructor(app: Express) {
         this.app = app;
@@ -27,7 +26,6 @@ export default class Storage implements Service {
         this.config = config.services.storage;
         this.refresh_interval = config.manager.refreshInterval;
         this.enabled = this.config.enabled;
-        this.icon = this.config.icon;
         this.name = this.config.name;
 
         if (!this.enabled) return;

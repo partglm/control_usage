@@ -4,7 +4,6 @@ import { Router, type Express } from "express";
 export interface ServiceConfig  {
   enabled: boolean;
   name: string;
-  icon: string;
 };
 
 export type RoleName = "server_manager" | "devices" | "server"

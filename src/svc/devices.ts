@@ -12,7 +12,6 @@ export default class Devices implements Service {
     config: ServiceConfig;
     enabled: boolean;
     name: string;
-    icon: string;
     status: number = 500;
     static devices: ListDevices;
     dataDevices: DataDevices[];
@@ -31,7 +30,6 @@ export default class Devices implements Service {
 
         this.config = config.services.devices
         this.enabled = this.config.enabled
-        this.icon = this.config.icon
         this.name = this.config.name
         this.role_host = config.role.host
         this.role_port = config.role.port

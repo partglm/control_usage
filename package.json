@@ -10,7 +10,8 @@
   "scripts": {
     "dev": "npx tsx watch src/server.ts",
     "build": "tsc",
-    "start": "npm run build && node dist/server.js"
+    "start": "npm run build && node dist/server.js",
+    "test": "npm run build && node dist/server.js --no-refresh"
   },
   "dependencies": {
     "express": "^5.1.0",

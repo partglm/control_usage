@@ -10,8 +10,8 @@
 
     <script>
         const listDevices = document.getElementById('listDevices')
-        async function servicesData () {
-            const result = await fetch('/devices', {
+        async function devices () {
+            const result = await fetch(window.location+'/devices', {
                 method: 'POST'
             })
             const data = result.json()
