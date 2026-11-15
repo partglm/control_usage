@@ -5,8 +5,7 @@ import si from "systeminformation";
 import { Router, type Express } from "express";
 import { execFile } from "child_process";
 import { promisify } from "util";
-import fs, { cpSync } from "fs";
-import { info } from "console";
+import fs from "fs";
 
 const execFileAsync = promisify(execFile);
 
@@ -21,7 +20,7 @@ export default class Storage implements Service {
     refresh_interval: number;
     constructor(app: Express) {
         this.app = app;
-        this.api = this.app.router;
+        this.api = Router()
 
         this.config = config.services.storage;
         this.refresh_interval = config.manager.refreshInterval;

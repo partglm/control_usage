@@ -7,6 +7,7 @@ import config from '../config.js';
 import Devices from './devices.js';
 import Usage from './usage.js';
 import Home from './home.js';
+import Test from '../test/network.js';
 
 export default class indexSvc {
     app: Express
@@ -34,6 +35,12 @@ export default class indexSvc {
         indexSvc.Devices = new Devices(this.app)
         indexSvc.Usage = new Usage(this.app)
         indexSvc.Home = new Home(this.app)
+
+        const testArg = process.argv[3]
+        if (testArg=='--test') {
+            new Test(0)
+            new Test(1)
+        }
         
         return 200
     }

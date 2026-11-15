@@ -11,13 +11,16 @@
     <script>
         const listDevices = document.getElementById('listDevices')
         async function devices () {
-            const result = await fetch(window.location+'/devices', {
-                method: 'POST'
+            const result = await fetch('/devices', {
+                method: 'POST',
+                headers: {
+                        'Content-Type': 'application/json'
+                },
             })
-            const data = result.json()
+            const data = (await result.json()).data
             
             data.forEach(device => {
-                console.log(device)
+                
             });
         }
         devices()

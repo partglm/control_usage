@@ -26,7 +26,7 @@ export default class Devices implements Service {
         this.app = app
         this.service = express()
         this.service.use(express.json());
-        this.api = this.app.router
+        this.api = Router()
 
         this.config = config.services.devices
         this.enabled = this.config.enabled
@@ -68,7 +68,7 @@ export default class Devices implements Service {
                 if (joinable) {
                     this.status = this.startServer()
                 }else{
-                    this.status = this.startServer()
+                    this.status = this.startManagerServer()
                 }
             })
         }
@@ -76,7 +76,7 @@ export default class Devices implements Service {
 
     startManagerServer (): number {
         //services Handler
-        this.service.put('add', (req,res) => {
+        this.service.put('/add', (req,res) => {
             const name: string = req.body.name
             const uuid: UUID = Devices.devices.find(d => d.name === name)?.uuid ?? randomUUID();
             
@@ -86,25 +86,24 @@ export default class Devices implements Service {
             if (exists) return
             Devices.devices.push({uuid: uuid, name: name, status: true, time_last_refresh: 0})
         })
-        this.service.patch('data', (req,res) => {
+        this.service.patch('/data', (req,res) => {
             const data: DataDevices = req.body.data
             const uuid = data.uuid
 
             this.dataDevices = this.dataDevices.filter(data => data.uuid !== uuid)
             this.dataDevices.push(data)
         })
-        this.service.get('dataAll', (req,res) => {
+        this.service.get('/dataAll', (req,res) => {
             res.json({data: this.dataDevices})
         })
-        this.service.get('')
-        this.service.get('health', (req,res) => {
+        this.service.get('/health', (req,res) => {
             res.sendStatus(200)
         })
 
         this.service.listen(this.role_port, this.role_host)
 
         //web handler
-        this.api.post('data', (req,res) => {
+        this.api.post('/data', (req,res) => {
             const data = this.dataDevices.find(device => device.uuid === req.body.uuid);
             res.json(data)
         })
@@ -140,7 +139,7 @@ export default class Devices implements Service {
             this.dataDevices = data
         }, Math.abs(this.refresh_interval/2))
 
-        this.api.post('data', (req,res) => {
+        this.api.post('/data', (req,res) => {
             const data = this.dataDevices.find(device => device.uuid === req.body.uuid);
             res.json(data)
         })
