@@ -84,7 +84,7 @@ export default class Devices implements Service {
 
             const exists = Devices.devices.some(d => d.name === name);
             if (exists) return
-            Devices.devices.push({uuid: uuid, name: name, status: true, time_last_refresh: 0})
+            Devices.devices.push({uuid: uuid, name: name, status: true, time_last_refresh: Date.now()})
         })
         this.service.patch('/data', (req,res) => {
             const data: DataDevices = req.body.data
@@ -119,8 +119,7 @@ export default class Devices implements Service {
         
             //check status devices
             Devices.devices.forEach(device => {
-                if (device.time_last_refresh !== 0 &&
-                    (device.time_last_refresh + (this.refresh_interval * 2.5)) > Date.now()) {
+                if ((device.time_last_refresh + (this.refresh_interval * 2.5)) < Date.now()) {
                     Devices.devices.find(d => d.uuid === device.uuid)!.status = false;
                 }
             })

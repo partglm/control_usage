@@ -11,7 +11,7 @@ role:
 
 manager:
   name: "PC Manager"
-  refreshInterval: 3000
+  refreshInterval: 30000
   #all devices need to have the same refresh rate 
 
 services:

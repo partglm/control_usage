@@ -26,6 +26,9 @@ export default class Home implements Service {
         this.api.get('/', (req,res) => {
             res.sendFile(config.dirname + "/src/public/home" + "/home.html")
         })
+        this.api.get('/style.css', (req,res) => {
+            res.sendFile(config.dirname + "/src/public/home" + "/home.css")
+        })
 
         this.api.post('/data', async (req,res) =>{
             const data: DataService[] = await this.refresh()

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="listDevices"></div>
@@ -19,11 +20,43 @@
             })
             const data = (await result.json()).data
             
-            data.forEach(device => {
-                
+            data.forEach(element => {
+                loadevices(element)                
             });
+
         }
         devices()
+
+        function loadevices(data) {
+            console.log(data)
+            const ligne = document.createElement('div')
+
+            const name = document.createElement('a')
+            const uuid = document.createElement('h3')
+            const status = document.createElement('h2')
+            const time_last_refresh = document.createElement('h2')
+
+            name.textContent = data.name
+            name.href = `/${data.uuid}`
+            
+            uuid.textContent = data.uuid
+            status.textContent = data.status ? 'online' : 'offline'
+            
+            time_last_refresh.textContent = new Date(data.time_last_refresh).toLocaleString("fr-FR", {
+                day: "2-digit",
+                month: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false
+            });
+
+            ligne.appendChild(name)
+            ligne.appendChild(uuid)
+            ligne.appendChild(status)
+            ligne.appendChild(time_last_refresh)
+
+            listDevices.appendChild(ligne)
+        }
 
 
     </script>
